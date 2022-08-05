@@ -21,9 +21,9 @@ defmodule SlackAPIDocs.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:floki, "~> 0.33.0", only: [:dev, :test]},
-      {:httpoison, "~> 1.8", only: [:dev, :test]},
-      {:jason, "~> 1.3", only: [:dev, :test]}
+      {:floki, "~> 0.33.0", only: [:dev, :test], runtime: false},
+      {:httpoison, "~> 1.8", only: [:dev, :test], runtime: false},
+      {:jason, "~> 1.3", only: [:dev, :test], runtime: false}
     ]
   end
 end
