@@ -13,6 +13,9 @@ defmodule Mix.SlackApiDocs.MethodPage do
     argument_type: ".apiMethodPage__argumentType",
     argument_example: ".apiReference__exampleCode",
 
+    # Example responses
+    example_responses: ".apiReference__response .apiReference__example pre",
+
     # Errors
     errors_table_rows: ".apiReference__errors table > tr",
     errors_table_error_code: "td[data-label=\"Error\"]",
@@ -42,7 +45,7 @@ defmodule Mix.SlackApiDocs.MethodPage do
     |> attach_optional_args!(document)
     |> attach_errors!(document)
     |> attach_warnings!(document)
-    |> attach_response!()
+    |> attach_response!(document)
   end
 
   defp attach_content_types!(%ApiDoc{} = api_doc, html_document) do
@@ -120,7 +123,21 @@ defmodule Mix.SlackApiDocs.MethodPage do
     ApiDoc.set_warnings!(api_doc, warnings)
   end
 
-  defp attach_response!(%ApiDoc{} = api_doc) do
-    %ApiDoc{api_doc | response: %{"ok" => true}}
+  defp attach_response!(%ApiDoc{} = api_doc, html_document) do
+    response =
+      html_document
+      |> Floki.find(@elements.example_responses)
+      |> Enum.map(fn element -> Floki.text(element) end)
+      |> Enum.find(&String.contains?(&1, "\"ok\": true"))
+      |> case do
+        nil ->
+          %{"ok" => true}
+
+        response ->
+          response
+          |> Jason.decode!()
+      end
+
+    ApiDoc.set_response!(api_doc, response)
   end
 end

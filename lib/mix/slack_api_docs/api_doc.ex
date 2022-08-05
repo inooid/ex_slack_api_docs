@@ -66,4 +66,8 @@ defmodule Mix.SlackApiDocs.ApiDoc do
   def set_warnings!(%__MODULE__{} = api_doc, warnings) when is_map(warnings) do
     %__MODULE__{api_doc | warnings: warnings}
   end
+
+  def set_response!(%__MODULE__{} = api_doc, response) when is_map(response) do
+    %__MODULE__{api_doc | response: response}
+  end
 end
