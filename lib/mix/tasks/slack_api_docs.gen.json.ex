@@ -1,7 +1,7 @@
-defmodule Mix.Tasks.SlackApiDocs.Gen do
+defmodule Mix.Tasks.SlackApiDocs.Gen.Json do
   use Mix.Task
 
-  @shortdoc "generate Slack API docs"
+  @shortdoc "Generates Slack Web API docs in JSON format"
 
   @moduledoc """
   Generates Slack API docs in a given format
