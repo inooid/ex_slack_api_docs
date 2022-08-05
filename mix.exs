@@ -3,7 +3,7 @@ defmodule SlackAPIDocs.MixProject do
 
   def project do
     [
-      app: :ex_slack_api_docs,
+      app: :slack_api_docs,
       version: "0.1.0",
       elixir: "~> 1.13",
       start_permanent: Mix.env() == :prod,

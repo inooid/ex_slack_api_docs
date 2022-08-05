@@ -12,7 +12,7 @@ To add it to a mix project, just add a line like this in your deps function in m
 ```elixir
 def deps do
   [
-    {:ex_slack_api_docs, "~> 0.1.0", only: [:dev], runtime: false}
+    {:slack_api_docs, "~> 0.1.0", only: [:dev], runtime: false}
   ]
 end
 ```
