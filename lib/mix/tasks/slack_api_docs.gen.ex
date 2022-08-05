@@ -14,23 +14,27 @@ defmodule Mix.Tasks.SlackApiDocs.Gen do
 
   @impl Mix.Task
   def run(args) do
-    HTTPoison.start()
+    try do
+      HTTPoison.start()
 
-    {opts, _, _} = OptionParser.parse(args, switches: [target: :string, concurrency: :integer])
-    target_path = Keyword.fetch!(opts, :target)
-    concurrency = Keyword.get(opts, :concurrency, 50)
+      {opts, _, _} = OptionParser.parse(args, switches: [target: :string, concurrency: :integer])
+      target_path = Keyword.fetch!(opts, :target)
+      concurrency = Keyword.get(opts, :concurrency, 50)
 
-    File.mkdir_p!(@dir)
-    Mix.shell().info("Gathering API methods, concurrency: #{concurrency}")
+      File.mkdir_p!(@dir)
+      Mix.shell().info("Gathering API methods, concurrency: #{concurrency}")
 
-    get!(@base_endpoint)
-    |> Mix.SlackApiDocs.HomePage.gather_methods!()
-    |> partition(concurrency)
-    |> Enum.map(fn group -> enqueue_group(group) end)
-    |> Task.await_many(:infinity)
+      get!(@base_endpoint)
+      |> Mix.SlackApiDocs.HomePage.gather_methods!()
+      |> partition(concurrency)
+      |> Enum.map(fn group -> enqueue_group(group) end)
+      |> Task.await_many(:infinity)
 
-    Mix.shell().info("Copying files to: #{target_path}")
-    copy_from_tmp!(target_path)
+      Mix.shell().info("Copying files to: #{target_path}")
+      copy_from_tmp!(target_path)
+    after
+      System.cmd("rm", ["-r", @dir])
+    end
   end
 
   defp process_api_doc(%{"link" => link, "name" => name} = item) do
@@ -69,7 +73,7 @@ defmodule Mix.Tasks.SlackApiDocs.Gen do
   defp copy_from_tmp!(target_path) do
     File.mkdir_p!(target_path)
 
-    File.ls!("#{@dir}")
+    File.ls!(@dir)
     |> Enum.filter(fn file -> String.ends_with?(file, "json") end)
     |> Enum.map(fn file ->
       origin = "#{@dir}/#{file}"
