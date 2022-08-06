@@ -55,7 +55,7 @@ defmodule Mix.Tasks.SlackApiDocs.Gen.Json do
     Mix.shell(original_shell)
   end
 
-  defp write_json_for_endpoint(%{"name" => name} = item) do
+  defp write_json_for_endpoint!(%{"name" => name} = item) do
     Mix.shell().info("Generating: #{name}")
 
     contents =
@@ -67,7 +67,7 @@ defmodule Mix.Tasks.SlackApiDocs.Gen.Json do
 
   defp enqueue_group(group) do
     Task.async(fn ->
-      Enum.map(group, fn item -> write_json_for_endpoint(item) end)
+      Enum.map(group, fn item -> write_json_for_endpoint!(item) end)
     end)
   end
 
