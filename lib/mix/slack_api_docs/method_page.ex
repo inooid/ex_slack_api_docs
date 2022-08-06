@@ -1,5 +1,5 @@
 defmodule Mix.SlackApiDocs.MethodPage do
-  alias Mix.SlackApiDocs.{ApiDoc, ApiDocArgument}
+  alias Mix.SlackApiDocs.{ApiDoc, ApiDocArgument, Request}
 
   @elements %{
     # Facts
@@ -27,13 +27,16 @@ defmodule Mix.SlackApiDocs.MethodPage do
     warnings_table_warning_description: "td[data-label=\"Description\"]"
   }
 
-  @spec gather!(binary, map) :: ApiDoc.t()
-  def gather!(body, %{
+  @spec gather!(map) :: ApiDoc.t()
+  def gather!(%{
+        "link" => link,
         "description" => description,
         "isDeprecated" => is_deprecated,
         "name" => name
       }) do
-    document = Floki.parse_document!(body)
+    document =
+      Request.get!(link)
+      |> Floki.parse_document!()
 
     %ApiDoc{
       name: name,

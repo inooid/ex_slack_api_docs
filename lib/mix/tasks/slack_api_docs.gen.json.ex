@@ -1,48 +1,66 @@
 defmodule Mix.Tasks.SlackApiDocs.Gen.Json do
   use Mix.Task
+  @default_output_path "tmp/slack/docs"
 
   @shortdoc "Generates Slack Web API docs in JSON format"
 
   @moduledoc """
-  Generates Slack API docs in a given format
+  Generates Slack API docs in JSON format
+
+      $ mix slack_api_docs.gen.json
+      $ mix slack_api_docs.gen.json tmp/slack/docs
   """
 
-  @base_uri "https://api.slack.com"
-  @base_endpoint "methods"
+  alias Mix.SlackApiDocs.{HomePage, MethodPage, Request}
 
   @dir System.tmp_dir() <> "slack_api_docs"
 
+  @command_options [
+    concurrency: :integer,
+    quiet: :boolean
+  ]
+
+  @default_opts [concurrency: 50, quiet: false]
+
   @impl Mix.Task
-  def run(args) do
+  def run(all_args) do
+    {original_opts, args, _} = OptionParser.parse(all_args, switches: @command_options)
+    opts = Keyword.merge(@default_opts, original_opts)
+    output_path = List.first(args) || @default_output_path
+    concurrency = opts[:concurrency]
+
+    original_shell = Mix.shell()
+    if opts[:quiet], do: Mix.shell(Mix.Shell.Quiet)
+
     try do
+      # Setup
       HTTPoison.start()
-
-      {opts, _, _} = OptionParser.parse(args, switches: [target: :string, concurrency: :integer])
-      target_path = Keyword.fetch!(opts, :target)
-      concurrency = Keyword.get(opts, :concurrency, 50)
-
       File.mkdir_p!(@dir)
+
+      # Generate files
       Mix.shell().info("Gathering API methods, concurrency: #{concurrency}")
 
-      get!(@base_endpoint)
-      |> Mix.SlackApiDocs.HomePage.gather_methods!()
+      Request.get!("/methods")
+      |> HomePage.gather_methods!()
       |> partition(concurrency)
-      |> Enum.map(fn group -> enqueue_group(group) end)
+      |> Enum.map(&enqueue_group/1)
       |> Task.await_many(:infinity)
 
-      Mix.shell().info("Copying files to: #{target_path}")
-      copy_from_tmp!(target_path)
+      # Copy the files over to the target location
+      Mix.shell().info("Copying files to: #{output_path}")
+      copy_to_target!(output_path)
     after
-      System.cmd("rm", ["-r", @dir])
+      System.cmd("rm", ["-rf", @dir])
     end
+
+    Mix.shell(original_shell)
   end
 
-  defp process_api_doc(%{"link" => link, "name" => name} = item) do
+  defp write_json_for_endpoint(%{"name" => name} = item) do
     Mix.shell().info("Generating: #{name}")
 
     contents =
-      get!(link)
-      |> Mix.SlackApiDocs.MethodPage.gather!(item)
+      MethodPage.gather!(item)
       |> Jason.encode!(pretty: true)
 
     File.write!("#{@dir}/#{name}.json", contents)
@@ -50,34 +68,28 @@ defmodule Mix.Tasks.SlackApiDocs.Gen.Json do
 
   defp enqueue_group(group) do
     Task.async(fn ->
-      Enum.map(group, fn item -> process_api_doc(item) end)
+      Enum.map(group, fn item -> write_json_for_endpoint(item) end)
     end)
   end
 
-  defp partition(list, size) when is_integer(size) and size > 0 do
+  defp partition(list, chunks_amount)
+       when is_list(list) and is_integer(chunks_amount) and chunks_amount > 0 do
     pool_size =
-      (Enum.count(list) / size)
+      (Enum.count(list) / chunks_amount)
       |> Float.ceil()
       |> Kernel.trunc()
 
     Enum.chunk_every(list, pool_size)
   end
 
-  defp get!(url) do
-    %HTTPoison.Response{status_code: 200, body: body} =
-      HTTPoison.get!("#{@base_uri}/#{String.trim_leading(url, "/")}")
-
-    body
-  end
-
-  defp copy_from_tmp!(target_path) do
-    File.mkdir_p!(target_path)
+  defp copy_to_target!(output_path) do
+    File.mkdir_p!(output_path)
 
     File.ls!(@dir)
     |> Enum.filter(fn file -> String.ends_with?(file, "json") end)
     |> Enum.map(fn file ->
       origin = "#{@dir}/#{file}"
-      dest = "#{String.trim_trailing(target_path, "/")}/#{file}"
+      dest = "#{String.trim_trailing(output_path, "/")}/#{file}"
       File.cp!(origin, dest)
     end)
   end

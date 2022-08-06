@@ -24,10 +24,9 @@ mix do deps.get, deps.compile
 ## Usage
 
 ```console
-mix slack_api_docs.gen.json --target="lib/slack/web/docs"
+mix slack_api_docs.gen.json lib/slack/web/docs
 ```
 
 ### Command line options
 
-- `--target /my/path` - the path where the generated files will be stored
 - `--concurrency 75` - default: 50, the amount of requests running in parallel
