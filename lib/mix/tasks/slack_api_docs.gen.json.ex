@@ -8,11 +8,13 @@ defmodule Mix.Tasks.SlackApiDocs.Gen.Json do
   @moduledoc """
   Generates Slack API docs in JSON format
 
+  ## Usage
+
       $ mix slack_api_docs.gen.json
       $ mix slack_api_docs.gen.json tmp/slack/docs
   """
 
-  alias Mix.SlackApiDocs.{HomePage, MethodPage, Request}
+  alias Mix.SlackApiDocs.{HomePage, MethodPage, Request, Helpers}
 
   @command_options [
     concurrency: :integer,
@@ -41,7 +43,7 @@ defmodule Mix.Tasks.SlackApiDocs.Gen.Json do
 
       Request.get!("/methods")
       |> HomePage.gather_methods!()
-      |> partition(concurrency)
+      |> Helpers.partition_list(concurrency)
       |> Enum.map(&enqueue_group/1)
       |> Task.await_many(:infinity)
 
@@ -69,16 +71,6 @@ defmodule Mix.Tasks.SlackApiDocs.Gen.Json do
     Task.async(fn ->
       Enum.map(group, fn item -> write_json_for_endpoint!(item) end)
     end)
-  end
-
-  defp partition(list, chunks_amount)
-       when is_list(list) and is_integer(chunks_amount) and chunks_amount > 0 do
-    pool_size =
-      (Enum.count(list) / chunks_amount)
-      |> Float.ceil()
-      |> Kernel.trunc()
-
-    Enum.chunk_every(list, pool_size)
   end
 
   defp copy_to_target!(output_path) do
