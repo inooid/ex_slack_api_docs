@@ -8,7 +8,6 @@ defmodule Mix.Tasks.SlackApiDocs.Verify do
 
   ## Usage
 
-      $ mix slack_api_docs.verify
       $ mix slack_api_docs.verify tmp/slack/docs
   """
 
