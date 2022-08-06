@@ -1,4 +1,4 @@
-# `mix slack_api_docs.gen.json`
+# Mix Task Slack API Docs
 
 A mix task for generating JSON API docs based on the Slack API.
 The format is similar to the deprecated repository: https://github.com/slackhq/slack-api-docs.
@@ -27,6 +27,13 @@ mix do deps.get, deps.compile
 mix slack_api_docs.gen.json lib/slack/web/docs
 ```
 
+If you want to validate the generated output against remote, you can simply run:
+
+```console
+mix slack_api_docs.verify lib/slack/web/docs
+```
+
 ### Command line options
 
 - `--concurrency 75` - default: 50, the amount of requests running in parallel
+- `--quiet` - suppress all informational messages.
