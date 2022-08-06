@@ -10,6 +10,7 @@ defmodule Mix.SlackApiDocs.ApiDoc do
   @derive Jason.Encoder
   defstruct [
     :name,
+    :link,
     :is_deprecated,
     :desc,
     :content_types,
@@ -21,6 +22,9 @@ defmodule Mix.SlackApiDocs.ApiDoc do
 
   @type key :: atom | String.t()
   @type t() :: %__MODULE__{
+          name: String.t(),
+          link: String.t(),
+          is_deprecated: boolean(),
           desc: String.t(),
           content_types: list(String.t()),
           args: %{

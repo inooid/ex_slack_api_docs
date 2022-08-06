@@ -40,6 +40,7 @@ defmodule Mix.SlackApiDocs.MethodPage do
 
     %ApiDoc{
       name: name,
+      link: link,
       desc: description,
       is_deprecated: is_deprecated
     }
