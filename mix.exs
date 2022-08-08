@@ -8,7 +8,7 @@ defmodule SlackAPIDocs.MixProject do
     [
       app: :slack_api_docs,
       version: @version,
-      elixir: ">= 1.10.0",
+      elixir: ">= 1.11.0",
       description: description(),
       package: package(),
       deps: deps()
