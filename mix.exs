@@ -25,7 +25,8 @@ defmodule SlackAPIDocs.MixProject do
     [
       {:floki, "~> 0.33.0", only: [:dev, :test], runtime: false},
       {:httpoison, "~> 1.8", only: [:dev, :test], runtime: false},
-      {:jason, "~> 1.3", only: [:dev, :test], runtime: false}
+      {:jason, "~> 1.3", only: [:dev, :test], runtime: false},
+      {:ex_doc, "~> 0.14", only: :dev, runtime: false}
     ]
   end
 
