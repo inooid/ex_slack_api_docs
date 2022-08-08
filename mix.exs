@@ -11,7 +11,8 @@ defmodule SlackAPIDocs.MixProject do
       elixir: ">= 1.11.0",
       description: description(),
       package: package(),
-      deps: deps()
+      deps: deps(),
+      docs: docs()
     ]
   end
 
@@ -49,6 +50,15 @@ defmodule SlackAPIDocs.MixProject do
       links: %{
         "GitHub" => @source_url
       }
+    ]
+  end
+
+  defp docs do
+    [
+      main: "readme",
+      source_url: @source_url,
+      source_ref: @version,
+      extras: ["CHANGELOG.md", "README.md"]
     ]
   end
 end
