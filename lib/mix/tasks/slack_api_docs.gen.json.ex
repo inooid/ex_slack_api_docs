@@ -1,7 +1,7 @@
 defmodule Mix.Tasks.SlackApiDocs.Gen.Json do
   use Mix.Task
   @default_output_path "tmp/slack/docs"
-  @tmp_dir System.tmp_dir() <> "slack_api_docs"
+  @tmp_dir String.trim_trailing(System.tmp_dir(), "/") <> "/slack_api_docs"
 
   @shortdoc "Generates Slack Web API docs in JSON format"
 
