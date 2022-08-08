@@ -47,7 +47,7 @@ jobs:
           mix deps.compile
 
       - name: Generate JSON
-        run: mix slack_api_docs.gen.json /tmp/slack/web/docs
+        run: mix slack_api_docs.gen.json "/tmp/slack/web/docs"
 
       - name: Verify contents
-        run: mix slack_api_docs.verify /tmp/slack/web/docs
+        run: mix slack_api_docs.verify "/tmp/slack/web/docs"
