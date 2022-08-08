@@ -12,6 +12,12 @@ defmodule Mix.Tasks.SlackApiDocs.Gen.Json do
 
       $ mix slack_api_docs.gen.json
       $ mix slack_api_docs.gen.json tmp/slack/docs
+
+  ## Command line options
+    * `--concurrency 75` - default: 50, the amount of requests running in parallel
+    * `--quiet` - suppress all informational messages.
+
+
   """
 
   alias Mix.SlackApiDocs.{HomePage, MethodPage, Request, Helpers}
