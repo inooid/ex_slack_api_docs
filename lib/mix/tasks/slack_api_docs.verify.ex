@@ -11,7 +11,7 @@ defmodule Mix.Tasks.SlackApiDocs.Verify do
       $ mix slack_api_docs.verify tmp/slack/docs
   """
 
-  alias Mix.SlackApiDocs.{MethodPage, Helpers}
+  alias Mix.SlackApiDocs.{MethodPage, Helpers, Request, HomePage}
 
   @command_options [
     concurrency: :integer,
@@ -31,12 +31,20 @@ defmodule Mix.Tasks.SlackApiDocs.Verify do
     original_shell = Mix.shell()
     if opts[:quiet], do: Mix.shell(Mix.Shell.Quiet)
 
+    # Compare local files to remote methods
+    local_file_paths =
+      File.ls!(input_path)
+      |> Enum.filter(fn file_name -> String.ends_with?(file_name, "json") end)
+      |> Enum.map(fn file_name -> "#{input_path}/#{file_name}" end)
+
+    Request.get!("/methods")
+    |> HomePage.gather_methods!()
+    |> report_missing_local_methods!(local_file_paths)
+
     # Generate files
     Mix.shell().info("Validating local API docs")
 
-    File.ls!(input_path)
-    |> Enum.filter(fn file_name -> String.ends_with?(file_name, "json") end)
-    |> Enum.map(fn file_name -> "#{input_path}/#{file_name}" end)
+    local_file_paths
     |> Helpers.partition_list(concurrency)
     |> Enum.map(&enqueue_group/1)
     |> Task.await_many(:infinity)
@@ -78,5 +86,38 @@ defmodule Mix.Tasks.SlackApiDocs.Verify do
     Task.async(fn ->
       Enum.map(group, fn file_path -> compare_local_to_remote!(file_path) end)
     end)
+  end
+
+  defp report_missing_local_methods!(remote_methods, local_file_paths) do
+    missing_methods =
+      remote_methods
+      |> Enum.filter(fn item ->
+        method_name = item["name"]
+
+        found? =
+          Enum.any?(local_file_paths, fn file_path ->
+            "#{method_name}.json" == Path.basename(file_path)
+          end)
+
+        found? == false
+      end)
+      |> Enum.map(fn item -> item["name"] end)
+
+    if Enum.empty?(missing_methods) do
+      :ok
+    else
+      file_path = List.first(local_file_paths) |> Path.dirname()
+
+      Mix.shell().error("""
+      Warning: Difference found between remote and local methods.
+      The methods that are missing locally are:
+
+          #{Enum.join(missing_methods, "\n    ")}
+
+      Please run `mix slack_api_docs.gen.json #{file_path}` to generate new docs
+      """)
+
+      exit({:shutdown, 1})
+    end
   end
 end
