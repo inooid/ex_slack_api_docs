@@ -1,7 +1,7 @@
 defmodule Mix.Tasks.SlackApiDocs.Gen.Json do
   use Mix.Task
   @default_output_path "tmp/slack/docs"
-  @tmp_dir System.tmp_dir() <> "slack_api_docs"
+  @tmp_dir String.trim_trailing(System.tmp_dir(), "/") <> "/slack_api_docs"
 
   @shortdoc "Generates Slack Web API docs in JSON format"
 
@@ -29,6 +29,8 @@ defmodule Mix.Tasks.SlackApiDocs.Gen.Json do
     opts = Keyword.merge(@default_opts, original_opts)
     output_path = List.first(args) || @default_output_path
     concurrency = opts[:concurrency]
+
+    IO.inspect(args)
 
     original_shell = Mix.shell()
     if opts[:quiet], do: Mix.shell(Mix.Shell.Quiet)
