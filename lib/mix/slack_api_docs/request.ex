@@ -1,4 +1,6 @@
 defmodule Mix.SlackApiDocs.Request do
+  @moduledoc false
+
   @base_uri "https://api.slack.com"
 
   def get!(url) do

@@ -1,4 +1,6 @@
 defmodule Mix.SlackApiDocs.HomePage do
+  @moduledoc false
+
   @elements %{
     react_root: "[data-automount-component=\"ApiDocsFilterableReferenceList\"]"
   }
