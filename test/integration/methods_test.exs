@@ -57,7 +57,30 @@ defmodule Test.Integration.MethodTest do
                assert %ApiDocArgument{} = value
              end)
 
+      # Should support required arguments
+      assert %ApiDocArgument{
+               name: "channel",
+               required: true,
+               example: channel_example,
+               type: "string",
+               desc: channel_desc
+             } = api_doc.args["channel"]
+
+      assert "" != channel_example
+      assert "" != channel_desc
+
       # Should support conditionally required arguments
+      assert %ApiDocArgument{
+               name: "blocks",
+               required: false,
+               example: blocks_example,
+               type: "blocks[] as string",
+               desc: blocks_desc
+             } = api_doc.args["blocks"]
+
+      assert "" != blocks_example
+      assert "" != blocks_desc
+
       assert String.contains?(
                api_doc.args["attachments"].desc,
                "Required unless `blocks`, `text` is passed."
@@ -73,6 +96,19 @@ defmodule Test.Integration.MethodTest do
                "Required unless `attachments`, `blocks` is passed."
              )
 
+      # Should support optional arguments
+      assert %ApiDocArgument{
+               name: "as_user",
+               required: false,
+               example: as_user_example,
+               type: "boolean",
+               desc: as_user_desc
+             } = api_doc.args["as_user"]
+
+      assert "" != as_user_example
+      assert "" != as_user_desc
+
+      # Any of these fields should not be empty
       refute Enum.empty?(api_doc.errors)
       refute Enum.empty?(api_doc.content_types)
       refute Enum.empty?(api_doc.warnings)
