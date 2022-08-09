@@ -9,6 +9,8 @@ defmodule Mix.SlackApiDocs.MethodPage do
 
     # Arguments
     required_args_list: ".apiMethodPage__argumentList----required .apiMethodPage__argumentRow",
+    argument_groups_list:
+      ".apiMethodPage__argumentSection .apiMethodPage__argumentGroup .apiMethodPage__argumentRow",
     optional_args_list: ".apiMethodPage__argumentList----optional .apiMethodPage__argumentRow",
     argument_name: ".apiMethodPage__argument",
     argument_description: ".apiMethodPage__argumentDesc p",
@@ -48,6 +50,7 @@ defmodule Mix.SlackApiDocs.MethodPage do
     }
     |> attach_content_types!(document)
     |> attach_required_args!(document)
+    |> attach_conditionally_required_args!(document)
     |> attach_optional_args!(document)
     |> attach_errors!(document)
     |> attach_warnings!(document)
@@ -79,6 +82,15 @@ defmodule Mix.SlackApiDocs.MethodPage do
     )
   end
 
+  defp attach_conditionally_required_args!(%ApiDoc{} = api_doc, html_document) do
+    ApiDoc.add_args!(
+      api_doc,
+      Floki.find(html_document, @elements.argument_groups_list)
+      |> parse_arguments!(is_required: false)
+      |> mark_as_conditionally_required()
+    )
+  end
+
   defp parse_arguments!(args_list_element, is_required: is_required) do
     args_list_element
     |> Enum.map(fn argument ->
@@ -95,6 +107,24 @@ defmodule Mix.SlackApiDocs.MethodPage do
         example: Floki.find(argument, @elements.argument_example) |> Floki.text(),
         type: type,
         required: is_required
+      }
+    end)
+  end
+
+  defp mark_as_conditionally_required(arguments) do
+    argument_names = arguments |> Enum.map(fn %ApiDocArgument{name: name} -> name end)
+
+    arguments
+    |> Enum.map(fn %ApiDocArgument{desc: desc} = argument ->
+      # Find all BUT the current argument
+      relevant_names =
+        Enum.filter(argument_names, fn name ->
+          name != argument.name
+        end)
+
+      %ApiDocArgument{
+        argument
+        | desc: "Required unless `#{relevant_names |> Enum.join("`, `")}` is passed. #{desc}"
       }
     end)
   end
