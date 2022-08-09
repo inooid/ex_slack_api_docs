@@ -1,4 +1,6 @@
 defmodule Mix.SlackApiDocs.ApiDocArgument do
+  @moduledoc false
+
   @enforce_keys [
     :name,
     :required,

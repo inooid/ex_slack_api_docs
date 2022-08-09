@@ -1,4 +1,6 @@
 defmodule Mix.SlackApiDocs.MethodPage do
+  @moduledoc false
+
   alias Mix.SlackApiDocs.{ApiDoc, ApiDocArgument, Request}
 
   @elements %{

@@ -1,4 +1,6 @@
 defmodule Mix.SlackApiDocs.ApiDoc do
+  @moduledoc false
+
   alias Mix.SlackApiDocs.ApiDocArgument
 
   @valid_content_types [

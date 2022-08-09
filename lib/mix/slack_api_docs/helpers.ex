@@ -1,4 +1,6 @@
 defmodule Mix.SlackApiDocs.Helpers do
+  @moduledoc false
+
   @doc ~S"""
   Partitions the given list into a fixed amount of chunks.
   The size of every chunk depends on the overall size of the given list.

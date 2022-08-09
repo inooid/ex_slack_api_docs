@@ -11,7 +11,8 @@ defmodule SlackAPIDocs.MixProject do
       elixir: ">= 1.11.0",
       description: description(),
       package: package(),
-      deps: deps()
+      deps: deps(),
+      docs: docs()
     ]
   end
 
@@ -25,7 +26,8 @@ defmodule SlackAPIDocs.MixProject do
     [
       {:floki, "~> 0.33.0", only: [:dev, :test], runtime: false},
       {:httpoison, "~> 1.8", only: [:dev, :test], runtime: false},
-      {:jason, "~> 1.3", only: [:dev, :test], runtime: false}
+      {:jason, "~> 1.3", only: [:dev, :test], runtime: false},
+      {:ex_doc, "~> 0.14", only: :dev, runtime: false}
     ]
   end
 
@@ -48,6 +50,15 @@ defmodule SlackAPIDocs.MixProject do
       links: %{
         "GitHub" => @source_url
       }
+    ]
+  end
+
+  defp docs do
+    [
+      main: "readme",
+      source_url: @source_url,
+      source_ref: @version,
+      extras: ["CHANGELOG.md", "README.md"]
     ]
   end
 end

@@ -9,6 +9,10 @@ defmodule Mix.Tasks.SlackApiDocs.Verify do
   ## Usage
 
       $ mix slack_api_docs.verify tmp/slack/docs
+
+  ## Command line options
+    * `--concurrency 75` - default: 50, the amount of requests running in parallel
+    * `--quiet` - suppress all informational messages.
   """
 
   alias Mix.SlackApiDocs.{MethodPage, Helpers, Request, HomePage}
