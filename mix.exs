@@ -2,7 +2,7 @@ defmodule SlackAPIDocs.MixProject do
   use Mix.Project
 
   @source_url "https://github.com/inooid/ex_slack_api_docs"
-  @version "0.1.0"
+  @version "0.1.1"
 
   def project do
     [
