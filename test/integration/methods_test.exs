@@ -115,6 +115,31 @@ defmodule Test.Integration.MethodTest do
     end
   end
 
+  describe "chat.unfurl" do
+    test "should return correct %ApiDoc{}" do
+      assert api_doc =
+               %ApiDoc{} =
+               MethodPage.gather!(%{
+                 "name" => "chat.unfurl",
+                 "description" => "Provide custom unfurl behavior for user-posted URLs",
+                 "isDeprecated" => false,
+                 "link" => "/methods/chat.unfurl"
+               })
+
+      # Arguments with both "default" and "example"
+      assert %ApiDocArgument{
+               name: "user_auth_required",
+               required: false,
+               example: user_auth_required_example,
+               type: "boolean",
+               desc: user_auth_required_desc
+             } = api_doc.args["user_auth_required"]
+
+      assert "true" == user_auth_required_example
+      assert "" != user_auth_required_desc
+    end
+  end
+
   defp assert_all_in_list(expected_list, given_list) do
     assert Enum.all?(expected_list, fn value -> Enum.member?(given_list, value) end),
            """
