@@ -15,7 +15,8 @@ defmodule Mix.SlackApiDocs.MethodPage do
     argument_name: ".apiMethodPage__argument",
     argument_description: ".apiMethodPage__argumentDesc p",
     argument_type: ".apiMethodPage__argumentType",
-    argument_example: ".apiReference__exampleCode",
+    argument_example: ".apiReference__example",
+    argument_example_code: ".apiReference__exampleCode",
 
     # Example responses
     example_responses: ".apiReference__response .apiReference__example pre",
@@ -104,11 +105,25 @@ defmodule Mix.SlackApiDocs.MethodPage do
       %ApiDocArgument{
         name: Floki.find(argument, @elements.argument_name) |> Floki.text(),
         desc: Floki.find(argument, @elements.argument_description) |> Floki.text(),
-        example: Floki.find(argument, @elements.argument_example) |> Floki.text(),
+        example: parse_example(argument),
         type: type,
         required: is_required
       }
     end)
+  end
+
+  defp parse_example(wrapper) do
+    Floki.find(wrapper, @elements.argument_example)
+    |> Enum.filter(fn el ->
+      # Find the argument "example" that is actually an example.
+      # Slack also shows the "Default" value in the example block sometimes.
+      "example" == Floki.find(el, "strong") |> Floki.text() |> String.downcase()
+    end)
+    |> Enum.map(fn el ->
+      Floki.find(el, @elements.argument_example_code)
+      |> Floki.text()
+    end)
+    |> Enum.join(",")
   end
 
   defp mark_as_conditionally_required(arguments) do
